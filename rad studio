@@ -1,0 +1,568 @@
+unit Unit1;
+ 
+interface
+ 
+uses
+  ClassAbiturient, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ExtCtrls, StdCtrls, jpeg;
+ 
+type
+  TFormAbit = class(TForm)
+    EditAbit: TEdit;
+    EditDisc: TEdit;
+    EditExam: TEdit;
+    EditSpec: TEdit;
+    EditExamList: TEdit;
+    EditDoc: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+public
+  property PAbit:string read FAbit write FAbit;
+  property PDisc:string read FDisc write FDisc;
+  property PExam:string read FExam write FExam;
+  property PSpec:string read FSpec write FSpec;
+  property PExamList:string read FExamList write FExamList;
+  property PDoc:string read FDoc write FDoc;
+  property PMore:string read FMore write FMore;
+    { Public declarations }
+  end;
+
+    Label7: TLabel;
+    MemoMore: TMemo;
+    ButtonRecToMemory: TButton;
+    ButtonReadFromMemory: TButton;
+    Image1: TImage;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure ButtonRecToMemoryClick(Sender: TObject);
+    procedure ButtonReadFromMemoryClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+ 
+var
+  FormAbit: TFormAbit;
+  Abit: TAbit;
+implementation
+ 
+{$R *.dfm}
+ 
+procedure TFormAbit.FormCreate(Sender: TObject);
+begin
+Abit := TAbit.Create;
+end;
+ 
+procedure TFormAbit.FormDestroy(Sender: TObject);
+begin
+Abit.Free;
+end;
+ 
+procedure TFormAbit.ButtonRecToMemoryClick(Sender: TObject);
+begin
+with Abit do begin
+  PAbit:= EditAbit.Text;
+  if EditDisc.Text <> ''
+  then PDisc:=EditDisc.Text;
+       PExam:=EditExam.Text;
+       PSpec:=EditSpec.Text;
+       PExamList:=EditExamList.Text;
+       PDoc:=EditDoc.Text;
+       PMore:=MemoMore.Text;
+end;
+end; 
+type
+mas=array[1..100]of integer;
+function sw(a:mas; b:integer):integer;
+var
+i,n,g:integer;
+begin
+g:=0;
+for i:=1 to n do begin
+if a[i]>0 then begin a[i]:=0;sw:=g;end;
+procedure TForm1.Button1Click(Sender: TObject);
+var
+x,y:array[1..100] of integer;
+n,i:integer;
+begin
+n:=memo1.Lines.Count;
+for i:=1 to n do
+x[i]:=strtoint(memo1.Lines[i-1]);
+y[i]:=strtoint(memo2.Lines[i-1]);
+memo1.Lines.Add(inttostr(sw(x)));
+memo2.Lines.Add(inttostr(sw(y)));
+end;
+
+end.
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, ActnList, Menus, ComCtrls, ExtCtrls, Contnrs,
+  UMyRect,UEditForm;
+ 
+type
+  TForm1 = class(TForm)
+    MainMenu1: TMainMenu;
+    ActionList1: TActionList;
+    PaintBox1: TPaintBox;
+    StatusBar1: TStatusBar;
+    AcCreate: TAction;
+    C1: TMenuItem;
+    AcDelete1: TMenuItem;
+    N3: TMenuItem;
+    AcRemove: TAction;
+    AcEdit: TAction;
+    N1: TMenuItem;
+    AcUnion: TAction;
+    AcIntersect: TAction;
+    N2: TMenuItem;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure PaintBox1Paint(Sender: TObject);
+    procedure AcCreateExecute(Sender: TObject);
+ 
+    function FindRect(X,Y:Integer):TMyRect;
+    procedure PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure AcRemoveExecute(Sender: TObject);
+    procedure AcEditExecute(Sender: TObject);
+    procedure AcUnionExecute(Sender: TObject);
+    procedure AcIntersectExecute(Sender: TObject);
+    procedure PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure PaintBox1MouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure PaintBox1Click(Sender: TObject);
+  private
+    List:TObjectList;
+    CurrentRect:TMyRect;
+    drag:Boolean;
+    dX,dY:Integer;
+  public
+    { Public declarations }
+  end;
+ 
+var
+  Form1: TForm1;
+ 
+implementation
+ 
+ 
+ 
+{$R *.dfm}
+ 
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  // Cоздаем список для хранения прямоугольников
+  List:=TObjectList.Create;
+  List.OwnsObjects:= True;
+end;
+ 
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  List.Free;
+end;
+ 
+procedure TForm1.PaintBox1Paint(Sender: TObject);
+var  // Рисуем все прямоугольники
+  i:Integer;
+begin
+  for i:=0 to List.Count-1 do
+  begin
+    (List[i] as TMyRect).Draw(PaintBox1.Canvas);
+  end;
+end;
+ 
+procedure TForm1.AcCreateExecute(Sender: TObject);
+var    // Cоздание прямоугольника
+  EditForm:TEditForm;
+  X,Y,W,H:Integer;
+begin
+    // Вызываем форму для задания размеров и положения
+    EditForm:= TEditForm.Create(Self);
+    try
+      if EditForm.ShowModal=mrOk then
+      begin
+        X:= StrToIntDef(EditForm.EditX.Text,10);
+        Y:= StrToIntDef(EditForm.EditY.Text,10);
+        W:= StrToIntDef(EditForm.EditW.Text,100);
+        H:= StrToIntDef(EditForm.EditH.Text,100);
+        // Создаем прямоугольник с указанными параметрами
+        CurrentRect:= TMyRect.Create(X,Y,X+W,Y+H);
+        // Добавляем его в список
+        List.Add(CurrentRect);
+        // Вызываем перерисовку
+        PaintBox1.Invalidate;
+ 
+        // Делаем доступным меню если есть два прямоугольника в списке
+        if List.Count=2 then
+        begin
+          AcUnion.Enabled:= true;
+          AcIntersect.Enabled:= true;
+        end;
+ 
+      end;
+    finally
+      EditForm.Release;
+    end;
+end;
+ 
+function TForm1.FindRect(X,Y:Integer):TMyRect;
+var  // Поиск прямоугольника  которому пренадлежит точка [X:Y]
+  i:Integer;
+begin
+  for i:=0 to List.Count-1 do
+  begin
+    if (List[i] as TMyRect).Contains(Point(X,Y)) then
+    begin
+      Result:= (List[i] as TMyRect);
+      Exit;
+    end;
+  end;
+ 
+  Result:= nil;
+end;
+ 
+ 
+procedure TForm1.PaintBox1MouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+ newX,newY:Integer;
+begin
+  CurrentRect:= FindRect(X,Y);
+  if Assigned(CurrentRect) then // Если клик по прямоугольнику начинаем перетаскивание
+  begin
+    drag:= true;
+    dX:= X-CurrentRect.X;
+    dY:= Y-CurrentRect.Y;
+  end;
+ 
+  // Если двойной клик по прямоугольнику вызываем его редактирование
+  if (ssDouble in Shift) and
+     (Button= mbLeft) and
+      Assigned(CurrentRect) then
+  begin
+    EditForm:= TEditForm.Create(Self);
+    try
+      EditForm.EditX.Text:= IntToStr(CurrentRect.X);
+      EditForm.EditY.Text:= IntToStr(CurrentRect.Y);
+      EditForm.EditW.Text:= IntToStr(CurrentRect.Width);
+      EditForm.EditH.Text:= IntToStr(CurrentRect.Height);
+ 
+      if EditForm.ShowModal=mrOk then
+      begin
+        newX:= StrToIntDef(EditForm.EditX.Text,0);
+        newY:= StrToIntDef(EditForm.EditY.Text,0);
+        // Изменяем параметры редактируемого прямоугольника
+        CurrentRect.Move(newX,newY);
+        CurrentRect.Width:=  StrToIntDef(EditForm.EditW.Text,100);
+        CurrentRect.Height:= StrToIntDef(EditForm.EditH.Text,100);
+ 
+        PaintBox1.Invalidate;
+      end;
+    finally
+      EditForm.Release;
+    end;
+  end;
+ 
+  // Если клик правой кнопкой мыши по прямоугольнику удаляем его
+  if (Button= mbRight) and
+      Assigned(CurrentRect) then
+  begin
+    List.Remove(CurrentRect);
+    CurrentRect:= nil;
+    PaintBox1.Invalidate;
+ 
+    // после удаления проверем не нужно ли снять доступность с пунктов меню
+    if List.Count<2 then
+    begin
+      AcUnion.Enabled:= false;
+      AcIntersect.Enabled:= false;
+    end;
+  end;
+ 
+end;
+ 
+procedure TForm1.AcRemoveExecute(Sender: TObject);
+begin // Удаляем текущий прямоугольник
+  if Assigned(CurrentRect) then
+  begin
+    List.Remove(CurrentRect);
+    CurrentRect:= nil;
+    PaintBox1.Invalidate;
+ 
+    if List.Count<2 then
+    begin
+      AcUnion.Enabled:= false;
+      AcIntersect.Enabled:= false;
+    end;
+  end;
+end;
+ 
+procedure TForm1.AcEditExecute(Sender: TObject);
+var   // Редактируем текущий прямоугольник
+ newX,newY:Integer;
+begin
+   if Assigned(CurrentRect) then
+  begin
+    EditForm:=TEditForm.Create(Self);
+    try
+      EditForm.EditX.Text:= IntToStr(CurrentRect.X);
+      EditForm.EditY.Text:= IntToStr(CurrentRect.Y);
+      EditForm.EditW.Text:= IntToStr(CurrentRect.Width);
+      EditForm.EditH.Text:= IntToStr(CurrentRect.Height);
+ 
+      if EditForm.ShowModal=mrOk then
+      begin
+        newX:= StrToIntDef(EditForm.EditX.Text,0);
+        newY:= StrToIntDef(EditForm.EditY.Text,0);
+ 
+        CurrentRect.Move(newX,newY);
+        CurrentRect.Width:=  StrToIntDef(EditForm.EditW.Text,100);
+        CurrentRect.Height:= StrToIntDef(EditForm.EditH.Text,100);
+ 
+        PaintBox1.Invalidate;
+      end;
+    finally
+      EditForm.Release;
+    end;
+  end;
+end;
+ 
+procedure TForm1.AcUnionExecute(Sender: TObject);
+var  // Объединяем 1 и 2 в списке прямоугольники
+  SecondRect:TMyRect;
+begin
+ if List.Count>=2 then // если в списке больше чем два прямоугольника
+ begin
+   CurrentRect:=  List[0] as TMyRect;
+   SecondRect:=   List[1] as TMyRect;
+   CurrentRect.Union(SecondRect); // результат операции будет помещен в первый прямоугольник
+   List.Remove(SecondRect);       // второй прямоугольник будет удален
+ 
+   PaintBox1.Invalidate;
+ 
+   if List.Count<2 then
+    begin
+      AcUnion.Enabled:= false;
+      AcIntersect.Enabled:= false;
+    end;
+ end;
+end;
+ 
+procedure TForm1.AcIntersectExecute(Sender: TObject);
+var   // Вычисляем пересение 1 и 2 в списке прямоугольника
+  SecondRect:TMyRect;
+begin
+ if List.Count>=2 then
+ begin
+   CurrentRect:=  List[0] as TMyRect;
+   SecondRect:=   List[1] as TMyRect;
+   CurrentRect.Intersect(SecondRect);
+   List.Remove(SecondRect);
+   PaintBox1.Invalidate;
+ 
+   if List.Count<2 then
+   begin
+      AcUnion.Enabled:= false;
+      AcIntersect.Enabled:= false;
+   end;
+ end;
+end;
+ 
+procedure TForm1.PaintBox1MouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  if drag then
+  begin
+    CurrentRect.Move(X-dX,Y-dY); // перемещаем прямоугольник за мышью
+    PaintBox1.Invalidate;
+  end;
+end;
+ 
+procedure TForm1.PaintBox1MouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  drag:= false; // завершаем перетаскивание.
+end;
+ type TMyRect= class
+  public
+     //  несколько версий конструкторов:
+    constructor Create;overload;
+    constructor Create(const Origin: TPoint; Width, Height: Integer); overload;
+    constructor Create(const Left, Top, Right, Bottom: Integer); overload;
+ 
+    procedure Move(x,y:Integer);    // переместить
+    procedure SetSize(w,h:Integer); // изменить размеры
+ 
+    procedure Union(MyRect:TMyRect); // объединение
+    procedure Intersect(MyRect:TMyRect);  // пересечение
+    function  Contains(const P: TPoint): Boolean; //  находится ли точка внутри прямоугольника
+    procedure Draw(Canvas:TCanvas); // прорисовка прямоугольника
+ 
+  protected
+    function  GetWidth: Integer;
+    procedure SetWidth(const Value: Integer);
+    function  GetHeight: Integer;
+    procedure SetHeight(const Value: Integer);
+    function  GetX: Integer;
+    procedure SetX(const Value: Integer);
+    function  GetY: Integer;
+    procedure SetY(const Value: Integer);
+ 
+  public
+    property X:Integer read GetX write SetY;   // X-координата левого верхнего угла
+    property Y:Integer read GetY write SetY;   // Y-координата левого верхнего угла
+    property Width:Integer  read GetWidth write SetWidth;   // Ширина
+    property Height:Integer read GetHeight write SetHeight; // Высота
+  private
+    FRect: TRect;  // тут храним 4-координаты углов прямоугольника
+  end;
+ 
+implementation
+ 
+constructor TMyRect.Create;
+begin
+   inherited Create;
+   FRect:= Rect(0,0,0,0);
+end;
+ 
+constructor TMyRect.Create(const Origin: TPoint; Width, Height: Integer);
+begin
+   inherited Create;
+   FRect:= Rect(Origin.X, Origin.Y, Origin.X+Width, Origin.Y+Height);
+end;
+ 
+constructor TMyRect.Create(const Left, Top, Right, Bottom: Integer);
+begin
+   inherited Create;
+   FRect:= Rect(Left, Top, Right, Bottom);
+end;
+ 
+ 
+procedure TMyRect.Move(X,Y:Integer);
+var
+  W,H:Integer;
+begin
+  W:= Width; H:= Height;
+  FRect:= Rect(X,Y,X+W,Y+H);
+end;
+ 
+procedure TMyRect.SetSize(W,H:Integer);
+begin
+  Width:= W;
+  Height:= H;
+end;
+ 
+procedure TMyRect.Union(MyRect:TMyRect);
+var
+  tmpRect: TRect;
+begin
+  tmpRect := FRect;
+  if MyRect.FRect.Left  < FRect.Left   then tmpRect.Left  :=  MyRect.FRect.Left;
+  if MyRect.FRect.Top   < FRect.Top    then tmpRect.Top   :=  MyRect.FRect.Top;
+  if MyRect.FRect.Right > FRect.Right  then tmpRect.Right :=  MyRect.FRect.Right;
+  if MyRect.FRect.Bottom> FRect.Bottom then tmpRect.Bottom:=  MyRect.FRect.Bottom;
+  FRect:= tmpRect;
+end;
+ 
+procedure TMyRect.Intersect(MyRect:TMyRect);
+var
+  tmpRect: TRect;
+begin
+  tmpRect := FRect;
+  if MyRect.FRect.Left   > FRect.Left   then tmpRect.Left  := MyRect.FRect.Left;
+  if MyRect.FRect.Top    > FRect.Top    then tmpRect.Top   := MyRect.FRect.Top;
+  if MyRect.FRect.Right  < FRect.Right  then tmpRect.Right := MyRect.FRect.Right;
+  if MyRect.FRect.Bottom < FRect.Bottom then tmpRect.Bottom:= MyRect.FRect.Bottom;
+  FRect:= tmpRect;
+end;
+ 
+ 
+function  TMyRect.GetX: Integer;
+begin
+   Result:= FRect.Left;
+end;
+ 
+procedure TMyRect.SetX(const Value: Integer);
+begin
+   FRect.Left:= Value;
+end;
+ 
+function  TMyRect.GetY: Integer;
+begin
+   Result:= FRect.Top;
+end;
+ 
+procedure TMyRect.SetY(const Value: Integer);
+begin
+  FRect.Top:= Value;
+end;
+ 
+function TMyRect.GetWidth: Integer;
+begin
+   Result:= FRect.Right-FRect.Left;
+end;
+ 
+ 
+procedure TMyRect.SetWidth(const Value: Integer);
+begin
+  FRect.Right:= FRect.Left+Value;
+end;
+ 
+function TMyRect.GetHeight: Integer;
+begin
+  Result:= FRect.Bottom-FRect.Top;
+end;
+ 
+procedure TMyRect.SetHeight(const Value: Integer);
+begin
+  FRect.Bottom:= FRect.Top+Value;
+end;
+ 
+function TMyRect.Contains(const P: TPoint): Boolean;
+begin
+  Result := PtInRect(FRect,P);
+end;
+ 
+procedure TMyRect.Draw(Canvas:TCanvas);
+begin
+  Canvas.Brush.Style:= bsClear;
+  Canvas.Rectangle(FRect);
+end;
+ 
+ 
+end.
+
+procedure TForm1.PaintBox1Click(Sender: TObject);
+begin
+ 
+end;
+
+for i := 1 to k do
+b^[i]:=0;
+for i:=1 to k-1 do
+for j:=i+1 to k do
+      if a^[i]<a^[j] then b^[j]:=b^[j]+1 else b^[i]:=b^[i]+1;
+for I := 1 to k do
+    c^[b^[i]+1]:=a^[i];
+
+ 
+procedure TFormAbit.ButtonReadFromMemoryClick(Sender: TObject);
+begin
+with Abit do begin
+EditAbit.Text:= PAbit;
+EditDisc.Text:= PDisc;
+EditExam.Text:= PExam;
+EditSpec.Text:= PSpec;
+EditExamList.Text:=PExamList;
+EditDoc.Text:= PDoc;
+MemoMore.Text:= PMore;
+end;
+end;
+ 
+end.
